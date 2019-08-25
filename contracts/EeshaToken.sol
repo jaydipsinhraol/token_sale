@@ -12,7 +12,14 @@ contract EeshaToken{
         uint256 _value
     );
 
+    event Approval(
+        address indexed _owner,
+        address indexed _spender,
+        uint256 _value
+    );
+
     mapping(address => uint256) public balanceOf;
+    mapping (address => mapping(address => uint256)) public allowance;
 
     constructor(uint256 _initialSupply) public{
         // allocate the initial supply
@@ -36,4 +43,38 @@ contract EeshaToken{
 
         return true;
     }
+
+    //approve
+
+    function approve(address _spender, uint256 _value) public returns (bool success) {
+
+        allowance[msg.sender][_spender] = _value;
+        emit Approval(msg.sender, _spender, _value);
+        return true;
+
+    }
+
+    function transferFrom(address _from, address _to, uint256 _value) public returns(bool success) {
+        //check _From has enough token
+        require(_value <= balanceOf[_from]);
+        // check allowance is big enough
+        require(_value <= allowance[_from][msg.sender]);
+
+        //change balance
+        balanceOf[_from] -= _value;
+        balanceOf[_to] += _value;
+
+        //update allowance
+        allowance[_from][msg.sender] -= _value;
+        
+        //transfer event
+        emit Transfer(_from, _to, _value);
+        //return boolean
+        return true;
+    }
+
+    //transferFrom
+
+    //
+
 }
